@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.PermissionDao">
+
+    <!--Set<Permission> findPermissionByRoleId(Integer id);-->
+    <select id="findPermissionByRoleId" parameterType="int" resultType="permission">
+        SELECT
+            *
+        FROM
+            t_permission
+        WHERE
+            id IN ( SELECT permission_id FROM t_role_permission WHERE role_id = #{rid})
+    </select>
+
+
+    <!--void insertPermission(Permission permission);-->
+    <insert id="insertPermission" parameterType="permission">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT last_insert_id()
+        </selectKey>
+        INSERT INTO t_permission VALUES (
+                                        NULL ,
+                                        #{name},
+                                        #{keyword},
+                                        #{description}
+
+        )
+    </insert>
+
+    <!--Page<Permission> findByCondition(String queryString);-->
+    <select id="findByCondition" parameterType="string" resultType="Permission">
+        select * from t_permission
+        <where>
+            <if test="value != null and value.length > 0 ">
+                keyword like "%"#{value}"%" or name LIKE "%"#{value}"%"
+            </if>
+        </where>
+    </select>
+
+    <!--long findPermissionCountById(Integer id);-->
+    <select id="findPermissionCountById" parameterType="int" resultType="long">
+        SELECT COUNT(0) FROM t_role_permission WHERE permission_id = #{id}
+    </select>
+
+    <!--void delById(Integer id);-->
+    <delete id="delById" parameterType="int">
+        DELETE FROM t_permission WHERE id = #{id}
+    </delete>
+
+    <!--Permission selectPermissionById(Integer id);-->
+    <select id="selectPermissionById" parameterType="int" resultType="permission">
+        SELECT
+            *
+        FROM
+            t_permission
+            WHERE  id = #{id}
+    </select>
+
+    <!--void edit(Permission permission);-->
+    <update id="edit" parameterType="permission">
+        UPDATE `t_permission` SET `name` = #{name},
+        `keyword` = #{keyword},
+        `description` = NULL WHERE `id` = #{id}
+    </update>
+
+    <!--List<Permission> findAll();-->
+    <select id="findAll"  resultType="permission">
+        SELECT
+        *
+        FROM
+        t_permission
+    </select>
+
+    <!--void giveAdminPermission(Integer id);-->
+    <insert id="giveAdminPermission" parameterType="int">
+        INSERT INTO `t_role_permission`(`role_id`, `permission_id`) VALUES (1, #{id})
+    </insert>
+
+    <!--void delPermissionWithRole(Integer id);-->
+    <delete id="delPermissionWithRole" parameterType="int">
+        DELETE FROM t_role_permission WHERE permission_id = #{id}
+    </delete>
+</mapper>

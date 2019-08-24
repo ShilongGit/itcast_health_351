@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.SetmealDao">
+
+    <!--Page<CheckGroup> findPageByCondition(String queryString);-->
+    <select id="findPageByCondition" parameterType="string" resultType="Setmeal">
+        SELECT * FROM t_setmeal
+        <where>
+            <if test="value != null and value.length > 0">
+            code like "%"#{value}"%" or name  like "%"#{value}"%" or helpCode like "%"#{value}"%"
+            </if>
+        </where>
+    </select>
+
+    <!--void insertSetmeal(Setmeal setmeal);-->
+    <insert id="insertSetmeal" parameterType="setmeal" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `t_setmeal`(`name`, `code`, `helpCode`, `sex`, `age`, `price`, `remark`, `attention`, `img`)
+        VALUES (
+                #{name},
+                #{code},
+                #{helpCode},
+                #{sex},
+                #{age},
+                #{price},
+                #{remark},
+                #{attention},
+                #{img}
+        );
+
+    </insert>
+
+    <!--void insertSetmealIdWithCheckgroupIds(Map<String, Object> paramMap);-->
+    <insert id="insertSetmealIdWithCheckgroupIds" parameterType="map">
+        INSERT INTO t_setmeal_checkgroup VALUES
+        <foreach collection="checkgroupIds" item="checkgroupId" separator=",">
+            (#{setmealId},#{checkgroupId})
+        </foreach>
+    </insert>
+
+    <!--List<Setmeal> findAll();-->
+    <select id="findAll" resultType="setmeal">
+        SELECT * FROM t_setmeal
+    </select>
+
+    <resultMap id="findByIdMap" type="setmeal">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="code" property="code"></result>
+        <result column="helpCode" property="helpCode"></result>
+        <result column="sex" property="sex"></result>
+        <result column="age" property="age"></result>
+        <result column="price" property="price"></result>
+        <result column="remark" property="remark"></result>
+        <result column="attention" property="attention"></result>
+        <result column="img" property="img"></result>
+        <collection property="checkGroups" column="id" ofType="checkgroup" select="com.itheima.dao.CheckGroupDao.findCheckGroupListBySetmealId">
+        </collection>
+    </resultMap>
+
+    <!--Setmeal findById(Integer id);-->
+    <select id="findById" parameterType="int" resultMap="findByIdMap">
+      SELECT * FROM t_setmeal WHERE id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.MenuDao">
+
+    <!--List<Menu> findMenuListByUserId(Integer id);-->
+    <select id="findMenuListByUserId" parameterType="int" resultType="menu">
+        SELECT
+            *
+        FROM
+            t_menu
+        WHERE
+            id IN
+            ( SELECT menu_id FROM t_role_menu WHERE role_id IN
+              ( SELECT role_id FROM t_user_role WHERE user_id = #{userid} )
+            )
+    </select>
+
+    <!--Page<Menu> findByCondition(String queryString);-->
+    <select id="findByCondition" parameterType="string" resultType="menu">
+        select * from t_menu
+        <where>
+            <if test="value != null and value.length > 0 ">
+                name LIKE "%"#{value}"%"
+            </if>
+        </where>
+    </select>
+
+    <!--List<Menu> findParentMenu();-->
+    <select id="findParentMenu" resultType="menu">
+        SELECT * FROM t_menu WHERE parentMenuId IS NULL
+    </select>
+
+
+    <!--void delById(Integer id);-->
+    <delete id="delById" parameterType="int">
+        DELETE FROM t_menu WHERE id = #{id}
+    </delete>
+
+    <!--void delMenuWithRoleByMenuId(Integer id);-->
+    <delete id="delMenuWithRoleByMenuId" parameterType="int">
+        DELETE FROM t_role_menu WHERE menu_id = #{id}
+    </delete>
+
+    <!--Menu findById(Integer id);-->
+    <select id="findById" parameterType="int" resultType="menu">
+        SELECT * FROM t_menu WHERE id = #{id}
+    </select>
+
+    <!--void edit(Menu menu);-->
+    <update id="edit" parameterType="menu">
+        UPDATE `t_menu` SET
+         `name` = #{name},
+          `linkUrl` = #{linkUrl},
+           `path` = #{path},
+           `priority` = #{priority},
+            `icon` = #{icon},
+            `description` = #{description},
+            `parentMenuId` = #{parentMenuId},
+            `level` = #{level}
+            WHERE `id` = #{id};
+    </update>
+
+    <!--List<Menu> findAll();-->
+    <select id="findAll" parameterType="int" resultType="menu">
+        SELECT * FROM t_menu
+    </select>
+
+    <!--int findMaxPath4ParentMenu();-->
+    <select id="findMaxPath4ParentMenu" resultType="int">
+        SELECT MAX(path) FROM t_menu WHERE parentMenuId IS NULL
+    </select>
+
+
+    <!--Menu findParentMenuByPath(String basePath);-->
+    <select id="findParentMenuByPath" parameterType="string" resultType="menu">
+        SELECT * FROM t_menu WHERE path = #{path}
+    </select>
+
+    <!--int findChildMenuCountByPid(Integer id);-->
+    <select id="findChildMenuCountByPid" parameterType="int" resultType="long">
+        SELECT COUNT(*) FROM t_menu WHERE parentMenuId = #{id}
+    </select>
+
+
+    <!--void insertMenu(Menu menu);-->
+    <insert id="insertMenu" parameterType="menu">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT last_insert_id()
+        </selectKey>
+        INSERT INTO t_menu
+        VALUES (
+                NULL,
+                #{name},
+                #{linkUrl},
+                #{path},
+                #{priority},
+                #{icon},
+                #{description},
+                #{parentMenuId},
+                #{level}
+                )
+
+    </insert>
+
+    <!--void insertMenuWithRoleByMid(Integer id);-->
+    <insert id="insertMenuWithRoleByMid" parameterType="int">
+        INSERT INTO `t_role_menu`(`role_id`, `menu_id`) VALUES (1, #{id});
+    </insert>
+</mapper>

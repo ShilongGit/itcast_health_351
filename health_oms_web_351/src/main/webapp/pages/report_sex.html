@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- 页面meta -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>传智健康</title>
+        <meta name="description" content="传智健康">
+        <meta name="keywords" content="传智健康">
+        <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+        <!-- 引入样式 -->
+        <link rel="stylesheet" href="../css/style.css">
+        <!-- 引入组件库 -->
+        <script src="../js/jquery.min.js"></script>
+        <script src="../js/vue.js"></script>
+        <script src="../js/axios-0.18.0.js"></script>
+        <script src="../js/echarts.js"></script>
+
+    </head>
+    <body class="hold-transition">
+        <div id="app">
+            <div class="content-header">
+                <h1>统计分析<small>会员男女比例</small></h1>
+                <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+                    <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+                    <el-breadcrumb-item>统计分析</el-breadcrumb-item>
+                    <el-breadcrumb-item>会员男女比例</el-breadcrumb-item>
+                </el-breadcrumb>
+            </div>
+            <div class="app-container">
+                <div class="box">
+                    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+                    <div id="chart1" style="width: 400px;height: 600px"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script type="text/javascript">
+
+                // 基于准备好的dom，初始化echarts实例
+                var myChart1 = echarts.init(document.getElementById('chart1'));
+                axios.defaults.withCredentials = true;
+                axios.get("http://localhost:82/report/getSexReport.do").then((res)=>{
+                    var man = parseInt(res.data.data.man);
+                    var woman = parseInt(res.data.data.woman);
+                    myChart1.setOption({
+                        title : {
+                            text: '会员男女比例',
+                            subtext: '纯属虚构',
+                            x:'center'
+                        },
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'left',
+                            data: ['man','woman']
+                        },
+                        series : [
+                            {
+                                name: '访问来源',
+                                type: 'pie',
+                                radius : '55%',
+                                center: ['50%', '50%'],
+                                data:[
+                                    {value:man, name:'man'},
+                                    {value:woman, name:'woman'}
+                                ],
+                                itemStyle: {
+                                    emphasis: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    });
+                }).catch(err=>{
+                    console.log(err);
+                });
+
+
+
+
+    </script>
+</html>

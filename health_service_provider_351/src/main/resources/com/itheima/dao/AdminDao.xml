@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.AdminDao">
+
+    <!--Page<SysUser> findPageByCondition(String queryString);-->
+    <select id="findPageByCondition" parameterType="string" resultType="sysuser">
+        SELECT * FROM t_user
+        <where>
+            <if test="value != null and value.length > 0">
+                username like "%"#{value}"%"
+            </if>
+        </where>
+    </select>
+
+    <!--void insertUser(SysUser user);-->
+    <insert id="insertUser" parameterType="sysuser">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT last_insert_id()
+        </selectKey>
+        INSERT INTO t_user VALUES (
+                                    NULL,
+                                    #{birthday},
+                                    #{gender},
+                                    #{username},
+                                    #{password},
+                                    #{remark},
+                                    #{station},
+                                    #{telephone}
+                                  )
+    </insert>
+
+    <!--void insertUserAndRoleGuanXi(Map<String, Object> params);-->
+    <insert id="insertUserAndRoleGuanXi" parameterType="map">
+        INSERT INTO t_user_role VALUES
+        <foreach collection="checkRoleIds" item="checkRoleId" separator=",">
+            (#{userId},#{checkRoleId})
+        </foreach>
+    </insert>
+
+    <!--SysUser selectUserById(Integer uid);-->
+    <select id="selectUserById" parameterType="int" resultType="SysUser">
+        SELECT * FROM t_user WHERE id = #{id}
+    </select>
+
+    <!--List<Role> findAllRole();-->
+    <select id="findAllRole" resultType="role">
+        SELECT * FROM t_role
+    </select>
+
+    <!--List<Integer> selectCheckRoleIdsByUid(Integer uid);-->
+    <select id="selectCheckRoleIdsByUid" parameterType="int" resultType="int">
+        SELECT role_id FROM t_user_role WHERE user_id = #{id}
+    </select>
+
+    <!--void update(SysUser user);-->
+    <update id="update" parameterType="sysuser">
+        UPDATE t_user
+        SET
+            birthday = #{birthday},
+            `gender` = #{gender},
+            `username` = #{username},
+            `password` = #{password},
+            `remark` = #{remark},
+            `station` = #{station},
+            `telephone` = #{telephone}
+        WHERE `id` = #{id};
+
+    </update>
+
+    <!--void deleteAssociation(Integer id);-->
+    <delete id="deleteAssociation" parameterType="int">
+        delete from t_user_role where user_id = #{id}
+    </delete>
+
+    <!--void delById(Integer id);-->
+    <delete id="delById" parameterType="int">
+        delete from t_user where id  = #{id}
+    </delete>
+
+    <!--List<SysUser> findAll();-->
+    <select id="findAll" resultType="role">
+        SELECT * FROM t_role
+    </select>
+
+
+</mapper>

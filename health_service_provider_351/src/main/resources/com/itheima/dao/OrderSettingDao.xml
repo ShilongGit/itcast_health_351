@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.OrderSettingDao">
+
+    <!--void insertOrderSetting(OrderSetting orderSetting);-->
+    <insert id="insertOrderSetting" parameterType="orderSetting">
+        INSERT INTO t_ordersetting(orderDate, number) VALUES (
+                                                    #{orderDate},
+                                                    #{number}
+                                                    )
+    </insert>
+
+    <!--List<OrderSetting> queryOrderSettingByCondition(Map<String, Object> paramMap);-->
+    <select id="queryOrderSettingByCondition" parameterType="map" resultType="OrderSetting">
+        SELECT * FROM t_ordersetting WHERE orderDate BETWEEN #{begin} AND #{end}
+    </select>
+
+    <!--void updateOrderSetting(OrderSetting orderSetting);-->
+
+    <update id="updateOrderSetting" parameterType="orderSetting">
+        UPDATE t_ordersetting
+        <set>
+            <if test="number != 0">
+                number = #{number},
+            </if>
+            <if test="reservations != 0">
+                reservations = #{reservations},
+            </if>
+        </set>
+        WHERE orderDate = #{orderDate}
+    </update>
+
+    <!--OrderSetting selectOrderSettingByDate(String orderDate);-->
+    <select id="selectOrderSettingByDate" parameterType="string" resultType="OrderSetting">
+        SELECT * FROM t_ordersetting WHERE orderDate = #{orderDate}
+    </select>
+
+    <!--void deleteOrderSettingByDate(Date orderDate);-->
+    <delete id="deleteOrderSettingByDate" parameterType="date">
+        DELETE FROM t_ordersetting WHERE orderDate = #{orderDate}
+    </delete>
+
+    <!--void deletePreOrderSetting(String today);-->
+    <delete id="deletePreOrderSetting" parameterType="string">
+        DELETE FROM t_ordersetting WHERE orderDate &lt; #{today}
+    </delete>
+</mapper>

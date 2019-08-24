@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.RoleDao">
+
+    <!--Set<Role> findRoleByUserId(Integer id);-->
+    <select id="findRoleByUserId" parameterType="int" resultType="role">
+        SELECT * FROM t_role
+        WHERE id IN
+        (SELECT role_id FROM t_user_role WHERE user_id = #{uid})
+    </select>
+
+    <!--Page<Role> findPageByCondition(String queryString);-->
+    <select id="findPageByCondition" parameterType="string" resultType="role">
+        SELECT * FROM t_role
+        <where>
+            <if test="value != null and value.length > 0">
+                name like "%"#{value}"%"
+            </if>
+        </where>
+    </select>
+
+
+
+
+    <!--void insertRole(Role role);主键返回-->
+    <insert id="insertRole" parameterType="role">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT last_insert_id()
+        </selectKey>
+        INSERT INTO t_role VALUES (
+
+                                    NULL,
+                                    #{name},
+                                    #{keyword},
+                                    #{description}
+
+                                    )
+    </insert>
+
+    <!--void insertRoleAndMenuGuanXi(Map<String, Object> params);-->
+    <insert id="insertRoleAndMenuGuanXi" parameterType="map">
+        INSERT INTO t_role_menu VALUES
+        <foreach collection="checkMenuIds" item="checkMenuId" separator=",">
+            (#{roleId},#{checkMenuId})
+        </foreach>
+    </insert>
+
+    <!--void insertRoleAndPermissionGuanXi(Map<String, Object> params);-->
+    <insert id="insertRoleAndPermissionGuanXi" parameterType="map">
+        INSERT INTO t_role_permission VALUES
+        <foreach collection="checkPermissionIds" item="checkPermissionId" separator=",">
+            (#{roleId},#{checkPermissionId})
+        </foreach>
+    </insert>
+
+    <!--Role findRoleById(Integer id);-->
+    <select id="findRoleById" parameterType="int" resultType="role">
+        SELECT * FROM t_role WHERE id = #{id}
+    </select>
+
+    <!--List<Integer> findCheckMenuIdsByRoleId(Integer id);-->
+    <select id="findCheckMenuIdsByRoleId" parameterType="int" resultType="int">
+        SELECT menu_id FROM t_role_menu WHERE role_id = #{id}
+    </select>
+
+    <!--List<Integer> findCheckPermissionIdsByRoleId(Integer id);-->
+    <select id="findCheckPermissionIdsByRoleId" parameterType="int" resultType="int">
+        SELECT permission_id FROM t_role_permission WHERE role_id = #{id}
+    </select>
+
+    <!--void update(Role role);-->
+    <update id="update" parameterType="role">
+        UPDATE `t_role` SET
+         `name` = #{name},
+          `keyword` = #{keyword},
+           `description` = #{description}
+            WHERE `id` = #{id}
+    </update>
+
+    <!--void deleteRoleAndMenuGuanXi(Integer id);-->
+    <delete id="deleteRoleAndMenuGuanXi" parameterType="int">
+        delete from t_role_menu where role_id = #{id}
+    </delete>
+
+    <!--void deleteRoleAndPermissionGuanXi(Integer id);-->
+    <delete id="deleteRoleAndPermissionGuanXi" parameterType="int">
+        delete from t_role_permission where role_id = #{id}
+    </delete>
+
+    <!--void deleteRoleById(Integer id);-->
+    <delete id="deleteRoleById" parameterType="int">
+        DELETE FROM t_role WHERE id = #{id}
+    </delete>
+
+    <!--List<Integer> findCheckParentMenuIdsByRoleId(Integer id);-->
+    <select id="findCheckParentMenuIdsByRoleId" parameterType="int" resultType="int">
+        SELECT
+            menu_id
+        FROM
+            t_role_menu rm
+            LEFT JOIN t_menu m ON rm.menu_id = m.id
+        WHERE
+            m.parentMenuId IS NULL
+            AND rm.role_id = #{id}
+    </select>
+
+    <!--List<Integer> findChildMenuIdsByPid(Integer checkMenuId);-->
+    <select id="findChildMenuIdsByPid" parameterType="int" resultType="int">
+        SELECT id FROM t_menu WHERE parentMenuId = #{id}
+    </select>
+</mapper>

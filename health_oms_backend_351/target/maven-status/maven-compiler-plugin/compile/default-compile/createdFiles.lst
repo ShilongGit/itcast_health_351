@@ -1,0 +1,14 @@
+com\itheima\logaspect\LogAspect.class
+com\itheima\controller\CheckItemController.class
+com\itheima\annotation\Log.class
+com\itheima\controller\SetmealController.class
+com\itheima\controller\MenuController.class
+com\itheima\security\UserDetailsServiceImpl.class
+com\itheima\controller\OrderSettingController.class
+com\itheima\controller\PermissionController.class
+com\itheima\controller\RoleController.class
+com\itheima\controller\AdminController.class
+com\itheima\controller\MySystemLogController.class
+com\itheima\controller\UserController.class
+com\itheima\controller\ReportController.class
+com\itheima\controller\CheckGroupController.class

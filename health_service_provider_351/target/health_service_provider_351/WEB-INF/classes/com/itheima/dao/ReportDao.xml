@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.ReportDao">
+
+    <!--List<Map<String,Object>> getSetmealReport();-->
+    <select id="getSetmealReport" resultType="map">
+        SELECT
+            COUNT( 0 ) AS `value`,
+            s.`name`
+        FROM
+            t_order o
+            LEFT JOIN t_setmeal s ON o.setmeal_id = s.id
+        GROUP BY
+            o.setmeal_id
+    </select>
+
+    <!--List<Map<String,Object>> selectHotSetmeal();-->
+    <select id="selectHotSetmeal" resultType="map">
+      SELECT
+            COUNT( 0 ) AS setmeal_count,
+            s.`name`,
+            COUNT( 0 ) / ( SELECT COUNT( 0 ) FROM t_order ) AS proportion
+        FROM
+            t_order o
+            LEFT JOIN t_setmeal s ON o.setmeal_id = s.id
+        GROUP BY
+            setmeal_id
+        ORDER BY COUNT(0) desc
+        LIMIT 2
+    </select>
+</mapper>

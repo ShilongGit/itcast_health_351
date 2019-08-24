@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!--自动扫包,后续注入jedis到任务调度类-->
+    <context:component-scan base-package="com.itheima.job"/>
+
+    <!-- 注册JobDetail(工作详情对象),作用是负责通过反射调用指定的Job -->
+    <bean id="clearImgJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <!--注入对象： 目标对象-->
+        <property name="targetObject" ref="cleanImgJob"/>
+        <!--注入方法: 目标方法-->
+        <property name="targetMethod" value="clear"/>
+    </bean>
+
+    <bean id="clearOrderSetting" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="cleanOrderSettingJob"></property>
+        <property name="targetMethod" value="clearOrderSetting"></property>
+
+    </bean>
+
+    <bean id="orderTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="clearOrderSetting"></property>
+        <property name="cronExpression">
+            <value>0 0 2 1 * ? </value>
+            <!--<value>1/10 * * * * ?</value>-->
+        </property>
+    </bean>
+
+    <!--注册一个触发器，指定任务触发的时间（间隔）-->
+    <bean id="jobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="clearImgJobDetail"/>
+        <property name="cronExpression">
+            <!-- 每隔10秒执行一次任务 0/10 * * * * ? -->
+            <!-- 每隔2分钟执行一次任务  0 0/2 * * * ? -->
+            <!-- 每天凌晨2点执行一次任务 0 0 2 * * ?  -->
+            <!--1,2,3,4 * * * * ? 每分钟的1,2,3,4 秒的时候执行-->
+            <!--1-10 * * * * ? 每分钟的1-10秒没秒执行一次-->
+            <!--* * * * * ?  每秒执行一次-->
+            <value>1/10 * * * * ?</value>
+        </property>
+    </bean>
+    <!--注册一个统一调用工厂，通过这个调度工厂调度任务-->
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <!--注入多个触发器-->
+        <property name="triggers">
+            <list>
+                <ref bean="jobTrigger"/>
+                <ref bean="orderTrigger"></ref>
+            </list>
+        </property>
+    </bean>
+
+    <!--dubbo配置-->
+    <dubbo:application name="dubbo-oms-consumer"/>
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <dubbo:annotation package="com.itheima.job"/>
+</beans>

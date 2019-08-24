@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.dao.SystemLogDao">
+
+    <!--void insertSystemLog(SystemLog systemLog);-->
+    <insert id="insertSystemLog" parameterType="systemlog">
+      <selectKey keyProperty="id" resultType="int" order="AFTER">
+          SELECT last_insert_id()
+      </selectKey>
+        INSERT INTO t_syslog VALUES (
+        NULL,
+        #{operationName},
+        #{methodName},
+        #{className},
+        #{operationType},
+        #{name},
+        #{actionTime},
+        #{status}
+        )
+    </insert>
+
+    <!--Page<SystemLog> findByCondition(String queryString);-->
+    <select id="findByCondition" parameterType="string" resultType="SystemLog">
+        select * from t_syslog
+        <where>
+            <if test="value != null and value.length > 0 ">
+                operationName like "%"#{value}"%" or name LIKE "%"#{value}"%" or actionTime LIKE "%"#{value}"%"
+            </if>
+        </where>
+    </select>
+
+    <!--void delById(Integer id);-->
+    <delete id="delById" parameterType="int">
+        DELETE FROM t_syslog WHERE id = #{id}
+    </delete>
+</mapper>
